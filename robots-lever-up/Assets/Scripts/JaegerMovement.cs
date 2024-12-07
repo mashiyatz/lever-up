@@ -109,8 +109,9 @@ public class JaegerMovement : MonoBehaviour
     void QueueAction()
     {
         if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.M) actionQueue.Enqueue(MechAction.RIGHT);
-        else if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.Z) actionQueue.Enqueue(MechAction.FORWARD);
+        else if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.Z) actionQueue.Enqueue(MechAction.BACKWARD);
         else if (currentLeftLegState == LeftLegState.U && currentRightLegState == RightLegState.Z) actionQueue.Enqueue(MechAction.LEFT);
+        else if (currentLeftLegState == LeftLegState.U && currentRightLegState == RightLegState.M) actionQueue.Enqueue(MechAction.FORWARD);
     }
 
     void GetCurrentLegInput(KeyCode[] legKeys, bool isRightLeg)
