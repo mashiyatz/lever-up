@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class JaegerMovement : MonoBehaviour
 {
@@ -46,6 +47,10 @@ public class JaegerMovement : MonoBehaviour
     [SerializeField] Transform nozzle;
     [SerializeField] Transform bulletPrefab;
 
+    [SerializeField] CinemachineVirtualCamera dashcam;
+    [SerializeField] CinemachineVirtualCamera hovercam;
+    [SerializeField] GameObject dashboard;
+
     void Start()
     {
         // initialize keys
@@ -57,7 +62,25 @@ public class JaegerMovement : MonoBehaviour
         inputQueue = new Queue<MechInput>();
         controller = GetComponent<Animator>();
 
+        ToggleCamera(false);
+
         StartCoroutine(ExecuteAction());
+        
+    }
+
+    void ToggleCamera(bool aiming)
+    {
+        if (aiming)
+        {
+            hovercam.Priority = 5;
+            dashcam.Priority = 10;
+            dashboard.SetActive(true);
+        } else
+        {
+            hovercam.Priority = 10;
+            dashcam.Priority = 5;
+            dashboard.SetActive(false);
+        }
     }
 
     bool IsCurrentAnim(int hash)
@@ -146,13 +169,19 @@ public class JaegerMovement : MonoBehaviour
                 // Debug.Log(newInput);
                 if (newInput == MechInput.RIGHT)
                 {
-                    if (lastInput == MechInput.LEFT || lastInput == MechInput.IDLE) controller.Play(rightLegUp);
-                    // else if (lastInput == MechInput.FORWARD) controller.Play(turnLeft);
+                    if (lastInput == MechInput.LEFT || lastInput == MechInput.IDLE)
+                    {
+                        controller.Play(rightLegUp);
+                        ToggleCamera(false);
+                    }
                 }
                 else if (newInput == MechInput.LEFT)
                 {
-                    if (lastInput == MechInput.RIGHT || lastInput == MechInput.IDLE) controller.Play(leftLegUp);
-                    // else if (lastInput == MechInput.FORWARD) controller.Play(turnRight);
+                    if (lastInput == MechInput.RIGHT || lastInput == MechInput.IDLE)
+                    {
+                        controller.Play(leftLegUp);
+                        ToggleCamera(false);
+                    }
                 }
                 else if (newInput == MechInput.FORWARD)
                 {
@@ -163,6 +192,12 @@ public class JaegerMovement : MonoBehaviour
                         controller.Play(fire);
                         Invoke(nameof(Shoot), 0.25f);
                     }
+                }
+                else if (newInput == MechInput.BACKWARD)
+                {
+                    if (lastInput == MechInput.RIGHT) controller.Play(turnLeft);
+                    else if (lastInput == MechInput.LEFT) controller.Play(turnRight);
+                    ToggleCamera(true);
                 }
 
                 lastInput = newInput;
