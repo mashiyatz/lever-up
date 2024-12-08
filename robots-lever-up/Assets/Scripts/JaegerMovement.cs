@@ -6,11 +6,11 @@ public class JaegerMovement : MonoBehaviour
 {
     public enum LeftLegState { Q, W, E, R, T, Y, U, REST }
     public enum RightLegState { Z, X, C, V, B, N, M, REST }
-    public enum MechAction { RIGHT, LEFT, FORWARD, BACKWARD, IDLE }
+    public enum MechInput { RIGHT, LEFT, FORWARD, BACKWARD, IDLE }
 
     private LeftLegState currentLeftLegState = LeftLegState.REST;
     private RightLegState currentRightLegState = RightLegState.REST;
-    private MechAction lastAction = MechAction.IDLE;
+    private MechInput lastInput = MechInput.IDLE;
 
     private KeyCode[] leftLegKeys;
     private KeyCode[] rightLegKeys;
@@ -25,8 +25,23 @@ public class JaegerMovement : MonoBehaviour
     private float rightLegTimer = 0;
     [SerializeField] private float legHoldTime = 0.1f;
 
-    private Queue<MechAction> actionQueue;
-    private bool isActionRegistered;
+    private Queue<MechInput> inputQueue;
+    private bool isInputRegistered;
+
+    private Animator controller;
+    private int rightLegUp = Animator.StringToHash("right_legup");
+    private int leftLegUp = Animator.StringToHash("left_legup");
+    private int turnLeft = Animator.StringToHash("left turn");
+    private int turnRight = Animator.StringToHash("right turn");
+    private int takeDamage = Animator.StringToHash("damage");
+    private int fire = Animator.StringToHash("fire");
+    private int death = Animator.StringToHash("death anim");
+    private int idle = Animator.StringToHash("idle");
+
+    [SerializeField] private int lives = 5;
+    [SerializeField] private float rotationSpeed = 10;
+    [SerializeField] private float movementSpeed = 5;
+    private bool isAlive = true;
 
     void Start()
     {
@@ -36,28 +51,70 @@ public class JaegerMovement : MonoBehaviour
         KeyCode[] rightKeys = { KeyCode.Z, KeyCode.X, KeyCode.C, KeyCode.V, KeyCode.B, KeyCode.N, KeyCode.M };
         rightLegKeys = rightKeys;
 
-        actionQueue = new Queue<MechAction>();
+        inputQueue = new Queue<MechInput>();
+        controller = GetComponent<Animator>();
 
         StartCoroutine(ExecuteAction());
+    }
+
+    bool IsCurrentAnim(int hash)
+    {
+        return controller.GetCurrentAnimatorStateInfo(0).shortNameHash == hash;
+    }
+
+    bool IsCurrentAnim(string name)
+    {
+        return controller.GetCurrentAnimatorStateInfo(0).IsName(name);
+    }
+
+    float GetAnimTime()
+    {
+        return controller.GetCurrentAnimatorStateInfo(0).normalizedTime;
     }
 
     // handle input
     void Update()
     {
+        if (!isAlive) return;
+
+        if (!IsCurrentAnim(idle))
+        {
+            if (IsCurrentAnim(rightLegUp) || IsCurrentAnim(leftLegUp))
+            {
+                if (GetAnimTime() > 0.5) transform.Translate(movementSpeed * transform.forward * Time.deltaTime, Space.World);
+            }
+            else if (IsCurrentAnim(turnLeft))
+            {
+                transform.Rotate(0, -rotationSpeed * Time.deltaTime, 0);
+            }
+            else if (IsCurrentAnim(turnRight))
+            {
+                transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
+            }
+            if (GetAnimTime() < 0.95) return;
+        }
+
+        // debugging input
+        if (Input.GetKeyDown(KeyCode.Alpha1)) inputQueue.Enqueue(MechInput.RIGHT);
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) inputQueue.Enqueue(MechInput.LEFT);
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) inputQueue.Enqueue(MechInput.FORWARD);
+        else if (Input.GetKeyDown(KeyCode.Alpha4)) inputQueue.Enqueue(MechInput.BACKWARD);
+        //
+
         GetCurrentLegInput(leftLegKeys, false);
         GetCurrentLegInput(rightLegKeys, true);
 
         if (leftLeg == lastLeftLeg) leftLegTimer += Time.deltaTime;
         else
         {
-            isActionRegistered = false;
+            isInputRegistered = false;
             leftLegTimer = 0;
             lastLeftLeg = leftLeg;
         }
         if (rightLeg == lastRightLeg) rightLegTimer += Time.deltaTime;
         else
         {
-            isActionRegistered = false;
+            isInputRegistered = false;
             rightLegTimer = 0;
             lastRightLeg = rightLeg;
         }
@@ -65,53 +122,67 @@ public class JaegerMovement : MonoBehaviour
         if (leftLegTimer > legHoldTime && rightLegTimer > legHoldTime) return;
         else if (leftLegTimer > legHoldTime || (rightLegTimer > legHoldTime))
         {
-            if (isActionRegistered) return;
+            if (isInputRegistered) return;
             currentLeftLegState = (LeftLegState)leftLeg;
             currentRightLegState = (RightLegState)rightLeg;
             QueueAction();
-            isActionRegistered = true;
+            isInputRegistered = true;
         }
     }
 
     // render input
     IEnumerator ExecuteAction()
     {
+        
         while (true)
         {
-            while (actionQueue.Count > 0)
+            if (!isAlive) break;
+            while (inputQueue.Count > 0)
             {
-                MechAction _action = actionQueue.Dequeue();
-                Debug.Log(_action);
-                // actionQueue.TryPeek(out MechAction _nextAction);
-                if (_action == MechAction.RIGHT)
+                MechInput newInput = inputQueue.Dequeue();
+                // Debug.Log(newInput);
+                if (newInput == MechInput.RIGHT)
                 {
-                    if (lastAction == MechAction.LEFT) Debug.Log("step forward");
-                    else if (lastAction == MechAction.FORWARD) Debug.Log("rotate clockwise");
+                    if (lastInput == MechInput.LEFT || lastInput == MechInput.IDLE) controller.Play(rightLegUp);
+                    else if (lastInput == MechInput.FORWARD) controller.Play(turnLeft);
                 }
-                else if (_action == MechAction.LEFT)
+                else if (newInput == MechInput.LEFT)
                 {
-                    if (lastAction == MechAction.RIGHT) Debug.Log("step forward");
-                    else if (lastAction == MechAction.FORWARD) Debug.Log("rotate counterclockwise");
+                    if (lastInput == MechInput.RIGHT || lastInput == MechInput.IDLE) controller.Play(leftLegUp);
+                    else if (lastInput == MechInput.FORWARD) controller.Play(turnRight);
                 }
-                else if (_action == MechAction.FORWARD)
+                else if (newInput == MechInput.FORWARD)
                 {
-                    if (lastAction == MechAction.RIGHT) Debug.Log("rotate clockwise");
-                    else if (lastAction == MechAction.LEFT) Debug.Log("rotate counterclockwise");
-                    else if (lastAction == MechAction.BACKWARD) Debug.Log("aiming...");
+                    if (lastInput == MechInput.RIGHT) controller.Play(turnLeft);
+                    else if (lastInput == MechInput.LEFT) controller.Play(turnRight);
+                    else if (lastInput == MechInput.BACKWARD) controller.Play(fire);
                 }
 
+                lastInput = newInput;
                 yield return null;
             }
             yield return null;
         }
     }
 
+    void TakeDamage()
+    {
+        lives -= 1;
+        if (lives > 0)
+        {
+            controller.Play(takeDamage);
+        } else
+        {
+            controller.Play(death);
+        }
+    }
+
     void QueueAction()
     {
-        if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.M) actionQueue.Enqueue(MechAction.RIGHT);
-        else if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.Z) actionQueue.Enqueue(MechAction.BACKWARD);
-        else if (currentLeftLegState == LeftLegState.U && currentRightLegState == RightLegState.Z) actionQueue.Enqueue(MechAction.LEFT);
-        else if (currentLeftLegState == LeftLegState.U && currentRightLegState == RightLegState.M) actionQueue.Enqueue(MechAction.FORWARD);
+        if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.M) inputQueue.Enqueue(MechInput.RIGHT);
+        else if (currentLeftLegState == LeftLegState.Q && currentRightLegState == RightLegState.Z) inputQueue.Enqueue(MechInput.BACKWARD);
+        else if (currentLeftLegState == LeftLegState.U && currentRightLegState == RightLegState.Z) inputQueue.Enqueue(MechInput.LEFT);
+        else if (currentLeftLegState == LeftLegState.U && currentRightLegState == RightLegState.M) inputQueue.Enqueue(MechInput.FORWARD);
     }
 
     void GetCurrentLegInput(KeyCode[] legKeys, bool isRightLeg)
