@@ -43,6 +43,9 @@ public class JaegerMovement : MonoBehaviour
     [SerializeField] private float movementSpeed = 5;
     private bool isAlive = true;
 
+    [SerializeField] Transform nozzle;
+    [SerializeField] Transform bulletPrefab;
+
     void Start()
     {
         // initialize keys
@@ -144,18 +147,22 @@ public class JaegerMovement : MonoBehaviour
                 if (newInput == MechInput.RIGHT)
                 {
                     if (lastInput == MechInput.LEFT || lastInput == MechInput.IDLE) controller.Play(rightLegUp);
-                    else if (lastInput == MechInput.FORWARD) controller.Play(turnLeft);
+                    // else if (lastInput == MechInput.FORWARD) controller.Play(turnLeft);
                 }
                 else if (newInput == MechInput.LEFT)
                 {
                     if (lastInput == MechInput.RIGHT || lastInput == MechInput.IDLE) controller.Play(leftLegUp);
-                    else if (lastInput == MechInput.FORWARD) controller.Play(turnRight);
+                    // else if (lastInput == MechInput.FORWARD) controller.Play(turnRight);
                 }
                 else if (newInput == MechInput.FORWARD)
                 {
                     if (lastInput == MechInput.RIGHT) controller.Play(turnLeft);
                     else if (lastInput == MechInput.LEFT) controller.Play(turnRight);
-                    else if (lastInput == MechInput.BACKWARD) controller.Play(fire);
+                    else if (lastInput == MechInput.BACKWARD)
+                    {
+                        controller.Play(fire);
+                        Invoke(nameof(Shoot), 0.25f);
+                    }
                 }
 
                 lastInput = newInput;
@@ -165,7 +172,11 @@ public class JaegerMovement : MonoBehaviour
         }
     }
 
-    void TakeDamage()
+    void Shoot()
+    {
+        Instantiate(bulletPrefab, nozzle);
+    }
+    public void TakeDamage()
     {
         lives -= 1;
         if (lives > 0)
