@@ -31,14 +31,14 @@ public class JaegerBehavior : MonoBehaviour
     private bool isInputRegistered;
 
     private Animator controller;
-    private int rightLegUp = Animator.StringToHash("right_legup");
-    private int leftLegUp = Animator.StringToHash("left_legup");
-    private int turnLeft = Animator.StringToHash("left turn");
-    private int turnRight = Animator.StringToHash("right turn");
-    private int takeDamage = Animator.StringToHash("damage");
-    private int fire = Animator.StringToHash("fire");
-    private int death = Animator.StringToHash("death anim");
-    private int idle = Animator.StringToHash("idle");
+    private int rightLegUp = Animator.StringToHash("Armature|rightstep");
+    private int leftLegUp = Animator.StringToHash("Armature|leftstep");
+    private int turnLeft = Animator.StringToHash("Armature|left turn");
+    private int turnRight = Animator.StringToHash("Armature|right turn");
+    private int takeDamage = Animator.StringToHash("Armature|damage");
+    private int fire = Animator.StringToHash("Armature|firegun");
+    private int death = Animator.StringToHash("Armature|death");
+    private int idle = Animator.StringToHash("Armature|idle");
 
     [SerializeField] private int lives = 5;
     [SerializeField] private float rotationSpeed = 10;
