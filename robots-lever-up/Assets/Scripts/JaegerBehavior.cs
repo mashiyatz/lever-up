@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using System;
 
-public class JaegerMovement : MonoBehaviour
+public class JaegerBehavior : MonoBehaviour
 {
     public enum LeftLegState { Q, W, E, R, T, Y, U, REST }
     public enum RightLegState { Z, X, C, V, B, N, M, REST }
@@ -50,6 +51,8 @@ public class JaegerMovement : MonoBehaviour
     [SerializeField] CinemachineVirtualCamera dashcam;
     [SerializeField] CinemachineVirtualCamera hovercam;
     [SerializeField] GameObject dashboard;
+
+    public static event Action OnPlayerDeath;
 
     void Start()
     {
@@ -220,6 +223,9 @@ public class JaegerMovement : MonoBehaviour
         } else
         {
             controller.Play(death);
+            ToggleCamera(false);
+            isAlive = false;
+            OnPlayerDeath.Invoke();
         }
     }
 

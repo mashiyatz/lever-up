@@ -19,7 +19,7 @@ public class EnemyBulletBehavior : MonoBehaviour
     {
         if (collision.transform.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<JaegerMovement>().TakeDamage();
+            collision.gameObject.GetComponent<JaegerBehavior>().TakeDamage();
             Instantiate(explosion, collision.transform.position, Quaternion.identity);
             GameObject.Destroy(gameObject);
         }

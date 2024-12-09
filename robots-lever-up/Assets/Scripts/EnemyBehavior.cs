@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TargetBehavior : MonoBehaviour
+public class EnemyBehavior : MonoBehaviour
 {
     [SerializeField] Transform nozzle;
     [SerializeField] Transform bulletPrefab;
