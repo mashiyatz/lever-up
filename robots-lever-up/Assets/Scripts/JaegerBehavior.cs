@@ -51,6 +51,7 @@ public class JaegerBehavior : MonoBehaviour
     [SerializeField] CinemachineVirtualCamera dashcam;
     [SerializeField] CinemachineVirtualCamera hovercam;
     [SerializeField] GameObject dashboard;
+    [SerializeField] ParticleSystem particles;
 
     public static event Action OnPlayerDeath;
 
@@ -213,6 +214,7 @@ public class JaegerBehavior : MonoBehaviour
     void Shoot()
     {
         Instantiate(bulletPrefab, nozzle);
+        particles.Play();
     }
     public void TakeDamage()
     {

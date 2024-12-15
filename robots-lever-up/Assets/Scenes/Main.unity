@@ -1251,7 +1251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c5c26dc532adf4bb28e58e4299a682, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 3041186918402705301, guid: 8bd3b004774f7e84e8652b2d79e1f938, type: 3}
+  enemyPrefab: {fileID: 2106699381408777579, guid: 5c0b6aa5e043dbe409be0fb2ed1d3f14, type: 3}
   xRange: {x: -100, y: 100}
   zRange: {x: -100, y: 100}
   maxNumEnemies: 5
@@ -1316,6 +1316,10 @@ PrefabInstance:
       propertyPath: hovercam
       value: 
       objectReference: {fileID: 279692191}
+    - target: {fileID: 3987233709410529923, guid: 8b81b5d7378504ce782c7178e6a6da3d, type: 3}
+      propertyPath: bulletPrefab
+      value: 
+      objectReference: {fileID: 324295239085798667, guid: a1d82ac966dcdc047b21ea4f1e2e41e1, type: 3}
     - target: {fileID: 4293080804930457557, guid: 8b81b5d7378504ce782c7178e6a6da3d, type: 3}
       propertyPath: m_Name
       value: TruckWalker

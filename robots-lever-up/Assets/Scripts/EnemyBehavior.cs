@@ -6,9 +6,12 @@ public class EnemyBehavior : MonoBehaviour
 {
     [SerializeField] Transform nozzle;
     [SerializeField] Transform bulletPrefab;
+    private Animator controller;
+    private int shoot = Animator.StringToHash("Armature|cannonfire");
 
     void Start()
     {
+        controller = GetComponent<Animator>();
         InvokeRepeating(nameof(Shoot), 1f, 1f);
     }
 
@@ -20,6 +23,7 @@ public class EnemyBehavior : MonoBehaviour
 
     void Shoot()
     {
+        controller.Play(shoot);
         Instantiate(bulletPrefab, nozzle);
     }
 }
