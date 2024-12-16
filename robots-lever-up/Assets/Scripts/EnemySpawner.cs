@@ -10,9 +10,14 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private int maxNumEnemies;
     [SerializeField] private float spawnInterval;
 
-    void Start()
+    private void OnEnable()
     {
-        InvokeRepeating(nameof(SpawnNewEnemy), 5.0f, spawnInterval);
+        GameManager.OnPlay += () => InvokeRepeating(nameof(SpawnNewEnemy), 5.0f, spawnInterval); 
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnPlay -= () => InvokeRepeating(nameof(SpawnNewEnemy), 5.0f, spawnInterval);
     }
 
     void SpawnNewEnemy()

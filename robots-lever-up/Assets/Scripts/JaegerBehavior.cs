@@ -40,7 +40,6 @@ public class JaegerBehavior : MonoBehaviour
     private int death = Animator.StringToHash("Armature|death");
     private int idle = Animator.StringToHash("Armature|idle");
 
-    [SerializeField] private int lives = 5;
     [SerializeField] private float rotationSpeed = 10;
     [SerializeField] private float movementSpeed = 5;
     private bool isAlive = true;
@@ -53,7 +52,8 @@ public class JaegerBehavior : MonoBehaviour
     [SerializeField] GameObject dashboard;
     [SerializeField] ParticleSystem particles;
 
-    public static event Action OnPlayerDeath;
+    public static event Action OnHoverCam;
+    public static event Action OnDashCam;
 
     void Start()
     {
@@ -72,6 +72,18 @@ public class JaegerBehavior : MonoBehaviour
         
     }
 
+    private void OnEnable()
+    {
+        GameManager.OnGameOver += PowerDown;
+    }
+
+    private void PowerDown()
+    {
+        controller.Play(death);
+        ToggleCamera(false);
+        isAlive = false;
+    }
+
     void ToggleCamera(bool aiming)
     {
         if (aiming)
@@ -79,11 +91,13 @@ public class JaegerBehavior : MonoBehaviour
             hovercam.Priority = 5;
             dashcam.Priority = 10;
             dashboard.SetActive(true);
+            OnDashCam();
         } else
         {
             hovercam.Priority = 10;
             dashcam.Priority = 5;
             dashboard.SetActive(false);
+            OnHoverCam();
         }
     }
 
@@ -175,7 +189,7 @@ public class JaegerBehavior : MonoBehaviour
                 {
                     if (lastInput == MechInput.LEFT || lastInput == MechInput.IDLE)
                     {
-                        controller.Play(rightLegUp);
+                        controller.Play(leftLegUp);
                         ToggleCamera(false);
                     }
                 }
@@ -183,7 +197,7 @@ public class JaegerBehavior : MonoBehaviour
                 {
                     if (lastInput == MechInput.RIGHT || lastInput == MechInput.IDLE)
                     {
-                        controller.Play(leftLegUp);
+                        controller.Play(rightLegUp);
                         ToggleCamera(false);
                     }
                 }
@@ -218,17 +232,8 @@ public class JaegerBehavior : MonoBehaviour
     }
     public void TakeDamage()
     {
-        lives -= 1;
-        if (lives > 0)
-        {
-            controller.Play(takeDamage);
-        } else
-        {
-            controller.Play(death);
-            ToggleCamera(false);
-            isAlive = false;
-            OnPlayerDeath.Invoke();
-        }
+        inputQueue.Clear();
+        controller.Play(takeDamage);
     }
 
     void QueueAction()
