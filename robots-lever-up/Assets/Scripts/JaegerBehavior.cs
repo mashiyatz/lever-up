@@ -55,6 +55,14 @@ public class JaegerBehavior : MonoBehaviour
     public static event Action OnHoverCam;
     public static event Action OnDashCam;
 
+    [SerializeField] AudioClip leftLegUpAudio;
+    [SerializeField] AudioClip rightLegUpAudio;
+    [SerializeField] AudioClip leftTurnAudio;
+    [SerializeField] AudioClip rightTurnAudio;
+    [SerializeField] AudioClip loadFireAudio;
+    [SerializeField] AudioClip[] shootAudio;
+    private AudioSource audioPlayer;
+
     void Start()
     {
         // initialize keys
@@ -65,6 +73,7 @@ public class JaegerBehavior : MonoBehaviour
 
         inputQueue = new Queue<MechInput>();
         controller = GetComponent<Animator>();
+        audioPlayer = GetComponent<AudioSource>();
 
         ToggleCamera(false);
 
@@ -88,6 +97,7 @@ public class JaegerBehavior : MonoBehaviour
     {
         if (aiming)
         {
+            PlayAudio(loadFireAudio);
             hovercam.Priority = 5;
             dashcam.Priority = 10;
             dashboard.SetActive(true);
@@ -114,6 +124,12 @@ public class JaegerBehavior : MonoBehaviour
     float GetAnimTime()
     {
         return controller.GetCurrentAnimatorStateInfo(0).normalizedTime;
+    }
+
+    private void PlayAudio(AudioClip clip)
+    {
+        audioPlayer.Stop();
+        audioPlayer.PlayOneShot(clip);
     }
 
     // handle input
@@ -190,6 +206,7 @@ public class JaegerBehavior : MonoBehaviour
                     if (lastInput == MechInput.LEFT || lastInput == MechInput.IDLE)
                     {
                         controller.Play(leftLegUp);
+                        PlayAudio(leftLegUpAudio);
                         ToggleCamera(false);
                     }
                 }
@@ -198,15 +215,25 @@ public class JaegerBehavior : MonoBehaviour
                     if (lastInput == MechInput.RIGHT || lastInput == MechInput.IDLE)
                     {
                         controller.Play(rightLegUp);
+                        PlayAudio(rightLegUpAudio);
                         ToggleCamera(false);
                     }
                 }
                 else if (newInput == MechInput.FORWARD)
                 {
-                    if (lastInput == MechInput.RIGHT) controller.Play(turnLeft);
-                    else if (lastInput == MechInput.LEFT) controller.Play(turnRight);
+                    if (lastInput == MechInput.RIGHT)
+                    {
+                        controller.Play(turnLeft);
+                        PlayAudio(leftTurnAudio);
+                    }
+                    else if (lastInput == MechInput.LEFT)
+                    {
+                        controller.Play(turnRight);
+                        PlayAudio(rightTurnAudio);
+                    }
                     else if (lastInput == MechInput.BACKWARD)
                     {
+                        PlayAudio(shootAudio[UnityEngine.Random.Range(0, shootAudio.Length)]);
                         controller.Play(fire);
                         Invoke(nameof(Shoot), 0.25f);
                     }
