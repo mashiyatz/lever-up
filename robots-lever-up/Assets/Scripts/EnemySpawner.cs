@@ -12,12 +12,23 @@ public class EnemySpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.OnPlay += () => InvokeRepeating(nameof(SpawnNewEnemy), 5.0f, spawnInterval); 
+        GameManager.OnPlay += () => InvokeRepeating(nameof(SpawnNewEnemy), 5.0f, spawnInterval);
+        GameManager.OnNewTime += ChangeSpawnRate;
     }
 
     private void OnDisable()
     {
         GameManager.OnPlay -= () => InvokeRepeating(nameof(SpawnNewEnemy), 5.0f, spawnInterval);
+        GameManager.OnNewTime -= ChangeSpawnRate;
+    }
+
+    void ChangeSpawnRate(float remainingTime)
+    {
+        if (remainingTime < 60)
+        {
+            maxNumEnemies = 10;
+            GameManager.OnNewTime -= ChangeSpawnRate;
+        }
     }
 
     void SpawnNewEnemy()

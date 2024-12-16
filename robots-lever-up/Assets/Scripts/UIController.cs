@@ -42,9 +42,9 @@ public class UIController : MonoBehaviour
         scoreTextbox.text = $"Score: {score}";
     }
 
-    void UpdateTime()
+    void UpdateTime(float timeRemaining)
     {
-        timeTextbox.text = $"{GameManager.timeRemaining:00}";
+        timeTextbox.text = $"{timeRemaining:000}";
     }
 
     void SetPlayUI()

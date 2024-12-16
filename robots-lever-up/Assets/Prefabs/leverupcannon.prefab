@@ -63,6 +63,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nozzle: {fileID: 5295264554953844729}
   bulletPrefab: {fileID: 4024877125803741062, guid: ea282303a4239d446a88a22d58872b02, type: 3}
+  shootInterval: 5
+  rotationSpeed: 30
 --- !u!95 &2567195898923371901
 Animator:
   serializedVersion: 5

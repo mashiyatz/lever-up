@@ -9,13 +9,15 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private float timeLimit;
     public static float timeRemaining;
+    private float timer;
 
     public static event Action OnTitleScreen;
-    public static event Action OnNewTime;
+    public static event Action<float> OnNewTime;
     public static event Action OnGameOver;
     public static event Action OnPlay;
 
     [SerializeField] JaegerBehavior playerControl;
+    private bool isReset = false;
 
     void Start()
     {
@@ -38,11 +40,23 @@ public class GameManager : MonoBehaviour
             if (timeRemaining > 0)
             {
                 timeRemaining -= Time.deltaTime;
-                OnNewTime();
+                OnNewTime(timeRemaining);
             }
             else
             {
                 SetState(STATE.GAMEOVER);
+            }
+
+            if (Input.GetKey(KeyCode.Space))
+            {
+                timer += Time.deltaTime;
+                if (timer >= 3 && !isReset) {
+                    isReset = true;
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                }
+            } else if (Input.GetKeyUp(KeyCode.Space))
+            {
+                timer = 0;
             }
         }
 

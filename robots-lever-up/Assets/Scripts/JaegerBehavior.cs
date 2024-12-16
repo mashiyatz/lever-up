@@ -61,6 +61,7 @@ public class JaegerBehavior : MonoBehaviour
     [SerializeField] AudioClip rightTurnAudio;
     [SerializeField] AudioClip loadFireAudio;
     [SerializeField] AudioClip[] shootAudio;
+    [SerializeField] AudioClip startupAudio;
     private AudioSource audioPlayer;
 
     void Start()
@@ -78,7 +79,7 @@ public class JaegerBehavior : MonoBehaviour
         ToggleCamera(false);
 
         StartCoroutine(ExecuteAction());
-        
+        PlayAudio(startupAudio);
     }
 
     private void OnEnable()
@@ -97,7 +98,6 @@ public class JaegerBehavior : MonoBehaviour
     {
         if (aiming)
         {
-            PlayAudio(loadFireAudio);
             hovercam.Priority = 5;
             dashcam.Priority = 10;
             dashboard.SetActive(true);
@@ -240,8 +240,17 @@ public class JaegerBehavior : MonoBehaviour
                 }
                 else if (newInput == MechInput.BACKWARD)
                 {
-                    if (lastInput == MechInput.RIGHT) controller.Play(turnLeft);
-                    else if (lastInput == MechInput.LEFT) controller.Play(turnRight);
+                    if (lastInput == MechInput.RIGHT)
+                    {
+                        controller.Play(turnLeft);
+                        PlayAudio(leftTurnAudio);
+                    }
+                    else if (lastInput == MechInput.LEFT)
+                    {
+                        controller.Play(turnRight);
+                        PlayAudio(rightTurnAudio);
+                    }
+                    else { PlayAudio(loadFireAudio); }
                     ToggleCamera(true);
                 }
 

@@ -51,15 +51,16 @@ public class CockpitUIController : MonoBehaviour
         {
             if (Input.GetKeyDown(legKeys[i]))
             {
+                // fix this later
                 if (isRightLeg)
-                {
-                    rightLegUI = i;
-                    rightBar.fillAmount = barsUI[rightLegUI];
-                }
-                else
                 {
                     leftLegUI = i;
                     leftBar.fillAmount = barsUI[leftLegUI];
+                }
+                else
+                {
+                    rightLegUI = i;
+                    rightBar.fillAmount = barsUI[rightLegUI];
                 }
                 return;
             }
